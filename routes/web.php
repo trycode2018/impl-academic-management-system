@@ -5,6 +5,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\GroupController;
+
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\EnrollmentController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,11 +44,13 @@ Route::middleware(['auth'])->group(function () {
 | Rotas Exclusivas para Administradores
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('courses', CourseController::class);
     Route::resource('classes', ClassController::class);
-    Route::resource('groups', GroupController::class);
+    Route::resource('teachers', TeacherController::class);
+    Route::resource('groups', GroupController::class); // ou mantém só admin? Pode dar leitura à secretaria
 });
 
 /*
@@ -51,10 +58,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 | Rotas para Secretaria e Administradores
 |--------------------------------------------------------------------------
 */
+// Rotas para admin e secretaria
 Route::middleware(['auth', 'role:admin,secretaria'])->group(function () {
-    Route::get('/secretaria', function () {
-        return view('secretaria.index');
-    })->name('secretaria.index');
+    Route::get('/dashboard', function () { return view('dashboard'); })->name('dashboard');
+    Route::resource('students', StudentController::class); // CRUD completo
+    Route::resource('enrollments', EnrollmentController::class); // CRUD completo
+    Route::get('/secretaria', function () { return view('secretaria.index'); })->name('secretaria.index');
+});
+
+Route::middleware(['auth', 'role:admin,secretaria'])->group(function () {
+    Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
+    // sem store, update, destroy
 });
 
 /*

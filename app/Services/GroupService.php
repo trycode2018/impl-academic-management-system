@@ -9,12 +9,9 @@ class GroupService
     /**
      * Listar turmas com relações (curso e classe)
      */
-    public function getAllGroups()
+   public function getAllGroups() // sem paginação para selects
     {
-        return Group::with(['course', 'schoolClass'])
-                    ->orderBy('year', 'desc')
-                    ->orderBy('name')
-                    ->paginate(10);
+        return Group::with(['course', 'schoolClass'])->orderBy('name')->paginate(15);
     }
 
     /**
@@ -76,4 +73,6 @@ class GroupService
         
         return $group->delete();
     }
+
+    
 }
